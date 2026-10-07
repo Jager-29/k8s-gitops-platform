@@ -1,0 +1,73 @@
+rule_files:
+  - rules.yaml
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: kube_pod_status_ready{namespace="openbao",pod="openbao-0",condition="true"}
+        values: 1x20
+      - series: vault_core_unsealed
+        values: 1x4 0x15
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: OpenBaoSealed
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: OpenBaoSealed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              team: infra
+              namespace: openbao
+            exp_annotations:
+              summary: OpenBao is sealed or down
+              description: The vault is sealed or the openbao-0 pod is not ready. External Secrets can no longer refresh secrets. Unseal with 2 of the 3 keys.
+  - interval: 1m
+    input_series:
+      - series: kube_pod_status_ready{namespace="openbao",pod="openbao-0",condition="true"}
+        values: 0x20
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: OpenBaoSealed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              team: infra
+              namespace: openbao
+            exp_annotations:
+              summary: OpenBao is sealed or down
+              description: The vault is sealed or the openbao-0 pod is not ready. External Secrets can no longer refresh secrets. Unseal with 2 of the 3 keys.
+  - interval: 1m
+    input_series:
+      - series: traefik_tls_certs_not_after{cn="*.example.com"}
+        values: 3456000x150
+    alert_rule_test:
+      - eval_time: 2h
+        alertname: CertificateExpiresSoon
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              team: infra
+              cn: "*.example.com"
+            exp_annotations:
+              summary: Certificate *.example.com expires in less than 60 days
+              description: The certificate served by Traefik for *.example.com expires in 39d 22h 0m 0s. Order the renewal now.
+      - eval_time: 2h
+        alertname: CertificateExpiresVerySoon
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: argocd_app_info{name="grafana",namespace="argocd",health_status="Degraded",sync_status="Synced"}
+        values: 1x30
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ArgoCDApplicationDegraded
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              team: infra
+              name: grafana
+              namespace: argocd
+            exp_annotations:
+              summary: ArgoCD application grafana is unhealthy
+              description: The application grafana has been Degraded or Missing for 15 minutes.
