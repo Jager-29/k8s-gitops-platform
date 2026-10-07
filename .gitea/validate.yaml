@@ -1,0 +1,29 @@
+name: validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          bash ci/install-tools.sh "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: gitleaks
+        run: gitleaks git --redact --no-banner --verbose .
+
+      - name: yamllint, kubeconform, promtool, amtool
+        run: bash ci/validate.sh
