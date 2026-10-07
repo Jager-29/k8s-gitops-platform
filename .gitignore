@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+render/
+*.snap
+*.tar.gz
+*.db
+.DS_Store
