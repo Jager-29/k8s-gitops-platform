@@ -1,0 +1,78 @@
+api:
+  enabled: false
+ui:
+  enabled: false
+portal:
+  enabled: false
+elasticsearch:
+  enabled: false
+management:
+  type: jdbc
+jdbc:
+  url: jdbc:postgresql://gravitee-pg-cluster-rw.gravitee.svc.cluster.local:5432/gravitee
+  username: gravitee
+  driver: https://jdbc.postgresql.org/download/postgresql-42.7.4.jar
+ratelimit:
+  type: redis
+redis:
+  host: gravitee-redis-master.gravitee.svc.cluster.local
+  port: 6379
+  ssl: false
+gateway:
+  env:
+    - name: gravitee_management_jdbc_password
+      valueFrom:
+        secretKeyRef:
+          name: gravitee-secrets
+          key: JDBC_PASSWORD
+    - name: gravitee_api_properties_encryption_secret
+      valueFrom:
+        secretKeyRef:
+          name: gravitee-secrets
+          key: PROPERTIES_ENCRYPTION_SECRET
+    - name: gravitee_ratelimit_redis_password
+      valueFrom:
+        secretKeyRef:
+          name: gravitee-redis
+          key: redis-password
+    - name: gravitee_tags
+      value: external
+    - name: GIO_MIN_MEM
+      value: 512m
+    - name: GIO_MAX_MEM
+      value: 512m
+  resources:
+    requests:
+      cpu: 200m
+      memory: 768Mi
+    limits:
+      memory: 1Gi
+  extraVolumes: |
+    - name: license
+      secret:
+        secretName: gravitee-license
+  extraVolumeMounts: |
+    - name: license
+      mountPath: /opt/graviteeio-gateway/license
+      readOnly: true
+  reporters:
+    tcp:
+      enabled: true
+      host: logstash-logstash.gravitee.svc.cluster.local
+      port: 8379
+      output: json
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    pathType: Prefix
+    path: /
+    hosts:
+      - apim-gw-ext.example.com
+    annotations:
+      kubernetes.io/ingress.class: null
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.middlewares: gravitee-waf-coraza@kubernetescrd
+    tls:
+      - hosts:
+          - apim-gw-ext.example.com
+        secretName: tls-gravitee
