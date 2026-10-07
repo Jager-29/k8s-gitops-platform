@@ -1,6 +1,18 @@
 # Kubernetes GitOps platform for API management
 
-[![validation](https://github.com/Jager-29/k8s-gitops-platform/actions/workflows/validate.yaml/badge.svg)](https://github.com/Jager-29/k8s-gitops-platform/actions/workflows/validate.yaml)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.30-326CE5?logo=kubernetes&logoColor=white)
+![Cilium](https://img.shields.io/badge/Cilium-VXLAN-F8C517?logo=cilium&logoColor=black)
+![Helm](https://img.shields.io/badge/Helm-charts%20pinned-0F1689?logo=helm&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-v3.4.5-EF7B4D?logo=argo&logoColor=white)
+![Gitea](https://img.shields.io/badge/Gitea-1.27-609926?logo=gitea&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=white)
+
+![Traefik](https://img.shields.io/badge/Traefik-3.7-24A1C1?logo=traefikproxy&logoColor=white)
+![HAProxy](https://img.shields.io/badge/HAProxy-TCP%20LB-106DA9)
+![Keycloak](https://img.shields.io/badge/Keycloak-26.7-4D4D4D?logo=keycloak&logoColor=white)
+![OpenBao](https://img.shields.io/badge/OpenBao-2.7-6E4AFF)
+![External Secrets](https://img.shields.io/badge/External%20Secrets-2.11-1B6AC6)
+![cert-manager](https://img.shields.io/badge/cert--manager-1.19-326CE5)
 
 A complete, self-hosted platform running an API management stack (Gravitee APIM) on a two-node Kubernetes cluster, fully driven by Git: every change goes through a pull request, a validation pipeline, then ArgoCD. Secrets never touch Git, every tool signs in through a single Keycloak realm backed by Active Directory, and everything is monitored and backed up.
 
