@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: gitea-oidc
+  namespace: gitea
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: openbao
+  target:
+    name: gitea-oidc
+    creationPolicy: Owner
+  data:
+    - secretKey: key
+      remoteRef:
+        key: gitea/oidc
+        property: key
+    - secretKey: secret
+      remoteRef:
+        key: gitea/oidc
+        property: secret
