@@ -1,0 +1,18 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: alertmanager-teams
+  namespace: monitoring
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: openbao
+  target:
+    name: alertmanager-teams
+    creationPolicy: Owner
+  data:
+    - secretKey: webhook_url
+      remoteRef:
+        key: monitoring/alertmanager-teams
+        property: webhook_url
