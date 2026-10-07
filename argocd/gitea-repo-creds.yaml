@@ -1,0 +1,27 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: gitea-repo-creds
+  namespace: argocd
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: openbao
+  target:
+    name: gitea-repo-creds
+    creationPolicy: Owner
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: repo-creds
+      data:
+        type: git
+        url: http://gitea-http.gitea.svc.cluster.local:3000/infra
+        username: argocd-reader
+        password: "{{ .token }}"
+  data:
+    - secretKey: token
+      remoteRef:
+        key: argocd/gitea-reader
+        property: token
