@@ -1,0 +1,84 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alerts-infra
+  namespace: monitoring
+spec:
+  groups:
+    - name: infra-platform
+      rules:
+        - alert: OpenBaoSealed
+          expr: (max(kube_pod_status_ready{namespace="openbao",pod="openbao-0",condition="true"}) or vector(0)) * (max(vault_core_unsealed) or vector(0)) == 0
+          for: 5m
+          labels:
+            severity: critical
+            team: infra
+            namespace: openbao
+          annotations:
+            summary: OpenBao is sealed or down
+            description: The vault is sealed or the openbao-0 pod is not ready. External Secrets can no longer refresh secrets. Unseal with 2 of the 3 keys.
+        - alert: OpenBaoBackupTooOld
+          expr: time() - max(kube_cronjob_status_last_successful_time{namespace="openbao",cronjob="openbao-snapshot"}) > 26 * 3600
+          for: 15m
+          labels:
+            severity: warning
+            team: infra
+            namespace: openbao
+          annotations:
+            summary: OpenBao backup is too old
+            description: The last successful OpenBao snapshot is older than 26 hours.
+        - alert: OpenBaoBackupMissing
+          expr: absent(kube_cronjob_status_last_successful_time{namespace="openbao",cronjob="openbao-snapshot"})
+          for: 1h
+          labels:
+            severity: warning
+            team: infra
+            namespace: openbao
+          annotations:
+            summary: OpenBao backup never succeeded
+            description: The openbao-snapshot CronJob has no successful run recorded.
+        - alert: CertificateExpiresSoon
+          expr: min by (cn) (traefik_tls_certs_not_after) - time() < 60 * 86400
+          for: 1h
+          labels:
+            severity: warning
+            team: infra
+          annotations:
+            summary: "Certificate {{ $labels.cn }} expires in less than 60 days"
+            description: "The certificate served by Traefik for {{ $labels.cn }} expires in {{ $value | humanizeDuration }}. Order the renewal now."
+        - alert: CertificateExpiresVerySoon
+          expr: min by (cn) (traefik_tls_certs_not_after) - time() < 30 * 86400
+          for: 1h
+          labels:
+            severity: critical
+            team: infra
+          annotations:
+            summary: "Certificate {{ $labels.cn }} expires in less than 30 days"
+            description: "The certificate served by Traefik for {{ $labels.cn }} expires in {{ $value | humanizeDuration }}."
+        - alert: ArgoCDApplicationDegraded
+          expr: max by (name, namespace) (argocd_app_info{health_status=~"Degraded|Missing"}) > 0
+          for: 15m
+          labels:
+            severity: warning
+            team: infra
+          annotations:
+            summary: "ArgoCD application {{ $labels.name }} is unhealthy"
+            description: "The application {{ $labels.name }} has been Degraded or Missing for 15 minutes."
+        - alert: ArgoCDApplicationOutOfSync
+          expr: max by (name, namespace) (argocd_app_info{sync_status="OutOfSync"}) > 0
+          for: 30m
+          labels:
+            severity: warning
+            team: infra
+          annotations:
+            summary: "ArgoCD application {{ $labels.name }} is out of sync"
+            description: "The application {{ $labels.name }} has differed from Git for 30 minutes."
+        - alert: TargetUnreachable
+          expr: up == 0
+          for: 5m
+          labels:
+            severity: warning
+            team: infra
+          annotations:
+            summary: "Prometheus target {{ $labels.job }} is unreachable"
+            description: "Prometheus cannot scrape {{ $labels.instance }} (job {{ $labels.job }}) since 5 minutes."
