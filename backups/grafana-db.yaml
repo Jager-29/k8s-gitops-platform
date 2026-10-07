@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-db
+  namespace: monitoring
+spec:
+  schedule: "30 2 * * *"
+  timeZone: Europe/Paris
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 900
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 472
+            runAsGroup: 472
+            fsGroup: 472
+          initContainers:
+            - name: sqlite-backup
+              image: python:3.13-slim
+              env:
+                - name: HOME
+                  value: /work
+              command:
+                - python3
+                - -c
+              args:
+                - |
+                  import sqlite3
+                  src = sqlite3.connect("file:/var/lib/grafana/grafana.db?mode=ro", uri=True)
+                  dst = sqlite3.connect("/work/grafana.db")
+                  src.backup(dst)
+                  result = dst.execute("PRAGMA integrity_check").fetchone()[0]
+                  dst.close()
+                  src.close()
+                  if result != "ok":
+                      raise SystemExit("integrity_check: " + result)
+                  print("integrity_check: ok")
+              volumeMounts:
+                - name: grafana
+                  mountPath: /var/lib/grafana
+                  readOnly: true
+                - name: work
+                  mountPath: /work
+          containers:
+            - name: upload
+              image: amazon/aws-cli:2.37.7
+              envFrom:
+                - secretRef:
+                    name: app-dumps-s3
+              env:
+                - name: AWS_DEFAULT_REGION
+                  value: garage
+                - name: AWS_REQUEST_CHECKSUM_CALCULATION
+                  value: when_required
+                - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+                  value: when_required
+                - name: S3_ENDPOINT
+                  value: http://192.168.10.13:3900
+                - name: HOME
+                  value: /work
+              command:
+                - /bin/sh
+                - -ec
+              args:
+                - |
+                  NAME="grafana/grafana-$(date -u +%Y%m%d-%H%M%S).db"
+                  aws --endpoint-url "$S3_ENDPOINT" s3 cp /work/grafana.db "s3://app-dumps/$NAME"
+                  LIMIT="$(date -u -d '7 days ago' +%Y%m%d)"
+                  aws --endpoint-url "$S3_ENDPOINT" s3 ls s3://app-dumps/grafana/ | while read -r _day _time _size file; do
+                    case "$file" in
+                      grafana-[0-9]*.db)
+                        stamp="${file#grafana-}"
+                        stamp="${stamp%%-*}"
+                        if [ "$stamp" -lt "$LIMIT" ]; then
+                          aws --endpoint-url "$S3_ENDPOINT" s3 rm "s3://app-dumps/grafana/$file"
+                        fi
+                        ;;
+                    esac
+                  done
+              volumeMounts:
+                - name: work
+                  mountPath: /work
+          volumes:
+            - name: grafana
+              persistentVolumeClaim:
+                claimName: grafana
+                readOnly: true
+            - name: work
+              emptyDir: {}
