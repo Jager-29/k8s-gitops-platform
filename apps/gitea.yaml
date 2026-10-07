@@ -1,0 +1,113 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitea
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://dl.gitea.com/charts/
+    chart: gitea
+    targetRevision: 12.7.0
+    helm:
+      releaseName: gitea
+      valuesObject:
+        replicaCount: 1
+        strategy:
+          type: Recreate
+        ingress:
+          enabled: true
+          className: traefik
+          annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          hosts:
+            - host: git.example.com
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - hosts:
+                - git.example.com
+        persistence:
+          enabled: true
+          size: 10Gi
+          storageClass: local-path
+        postgresql:
+          enabled: false
+        postgresql-ha:
+          enabled: false
+        valkey:
+          enabled: false
+        valkey-cluster:
+          enabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        gitea:
+          admin:
+            existingSecret: gitea-admin
+            email: gitadmin@example.com
+            passwordMode: keepUpdated
+          oauth:
+            - name: Keycloak
+              provider: openidConnect
+              existingSecret: gitea-oidc
+              autoDiscoverUrl: https://keycloak.example.com/realms/platform/.well-known/openid-configuration
+              scopes: openid profile email groups
+              groupClaimName: groups
+              adminGroup: GG-K8S-Admins
+              groupTeamMap: '{"GG-K8S-Admins": {"infra": ["infra-admins"]}, "GG-K8S-Readers": {"infra": ["infra-readers"]}}'
+              groupTeamMapRemoval: true
+          additionalConfigFromEnvs:
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-pg-app
+                  key: password
+          config:
+            APP_NAME: Platform Forge
+            server:
+              DOMAIN: git.example.com
+              ROOT_URL: https://git.example.com/
+              SSH_DOMAIN: git.example.com
+            database:
+              DB_TYPE: postgres
+              HOST: gitea-pg-cluster-rw.gitea.svc.cluster.local:5432
+              NAME: gitea
+              USER: gitea
+              SSL_MODE: require
+            session:
+              PROVIDER: db
+            cache:
+              ADAPTER: memory
+            queue:
+              TYPE: level
+            service:
+              DISABLE_REGISTRATION: false
+              ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+            oauth2_client:
+              ENABLE_AUTO_REGISTRATION: true
+              USERNAME: preferred_username
+              ACCOUNT_LINKING: disabled
+            actions:
+              ENABLED: true
+            repository:
+              DEFAULT_PRIVATE: private
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitea
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitea-pg
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://cloudnative-pg.github.io/charts
+    chart: cluster
+    targetRevision: 0.8.1
+    helm:
+      releaseName: gitea-pg
+      valuesObject:
+        type: postgresql
+        mode: standalone
+        version:
+          postgresql: "16"
+        cluster:
+          instances: 1
+          storage:
+            size: 5Gi
+            storageClass: local-path
+          monitoring:
+            enabled: true
+          initdb:
+            database: gitea
+            owner: gitea
+            secret:
+              name: gitea-pg-app
+          plugins:
+            - name: barman-cloud.cloudnative-pg.io
+              isWALArchiver: true
+              parameters:
+                barmanObjectName: garage
+        backups:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitea
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

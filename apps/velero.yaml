@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    chart: velero
+    targetRevision: 12.2.0
+    helm:
+      releaseName: velero
+      valuesObject:
+        image:
+          repository: velero/velero
+          tag: v1.18.4
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: velero/velero-plugin-for-aws:v1.14.4
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+        upgradeCRDs: false
+        snapshotsEnabled: false
+        deployNodeAgent: true
+        nodeAgent:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+        credentials:
+          useSecret: true
+          existingSecret: velero-garage
+        configuration:
+          backupStorageLocation:
+            - name: default
+              provider: aws
+              bucket: velero
+              default: true
+              config:
+                region: garage
+                s3ForcePathStyle: "true"
+                s3Url: http://192.168.10.13:3900
+                checksumAlgorithm: ""
+          volumeSnapshotLocation: []
+        schedules:
+          daily:
+            disabled: false
+            schedule: 0 3 * * *
+            useOwnerReferencesInBackup: false
+            template:
+              ttl: 168h
+              includedNamespaces:
+                - "*"
+              snapshotVolumes: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: oauth2-proxy
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://oauth2-proxy.github.io/manifests
+    chart: oauth2-proxy
+    targetRevision: 10.7.1
+    helm:
+      releaseName: oauth2-proxy
+      valuesObject:
+        config:
+          existingSecret: oauth2-proxy
+        extraArgs:
+          provider: keycloak-oidc
+          oidc-issuer-url: https://keycloak.example.com/realms/platform
+          scope: openid profile email groups
+          allowed-group: GG-K8S-Admins
+          code-challenge-method: S256
+          cookie-domain: .example.com
+          whitelist-domain: .example.com
+          reverse-proxy: true
+          set-xauthrequest: true
+          upstream: static://202
+          redirect-url: https://traefik.example.com/oauth2/callback
+          trusted-proxy-ip: 10.244.0.0/16
+          email-domain: "*"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: oauth2-proxy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://codecentric.github.io/helm-charts
+    chart: keycloakx
+    targetRevision: 7.3.2
+    helm:
+      releaseName: keycloak
+      valuesObject:
+        image:
+          tag: 26.7.4
+        command:
+          - /opt/keycloak/bin/kc.sh
+          - start
+          - --http-enabled=true
+          - --http-port=8080
+        http:
+          relativePath: /
+        proxy:
+          enabled: true
+          mode: xforwarded
+        cache:
+          stack: custom
+        database:
+          vendor: postgres
+          hostname: gravitee-pg-cluster-rw.gravitee.svc.cluster.local
+          port: 5432
+          database: keycloak
+          username: keycloak
+          existingSecret: keycloak-db
+          existingSecretKey: password
+        extraEnv: |
+          - name: KC_CACHE
+            value: local
+          - name: KC_HOSTNAME
+            value: https://keycloak.example.com
+          - name: KC_TRUSTSTORE_PATHS
+            value: /opt/keycloak/conf/truststores/ad-ca.pem
+          - name: KC_BOOTSTRAP_ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: keycloak-admin
+                key: username
+          - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keycloak-admin
+                key: password
+        extraVolumes: |
+          - name: ad-ca
+            configMap:
+              name: ad-ca
+        extraVolumeMounts: |
+          - name: ad-ca
+            mountPath: /opt/keycloak/conf/truststores
+            readOnly: true
+        ingress:
+          enabled: true
+          ingressClassName: traefik
+          annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          rules:
+            - host: keycloak.example.com
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - hosts:
+                - keycloak.example.com
+        resources:
+          requests:
+            cpu: 100m
+            memory: 768Mi
+          limits:
+            memory: 1Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keycloak
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

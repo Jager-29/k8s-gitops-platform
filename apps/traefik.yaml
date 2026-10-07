@@ -1,0 +1,77 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 41.6.0
+    helm:
+      releaseName: traefik
+      valuesObject:
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+        providers:
+          kubernetesCRD:
+            enabled: true
+            allowCrossNamespace: false
+          kubernetesIngress:
+            enabled: true
+            publishedService:
+              enabled: false
+        additionalArguments:
+          - --providers.kubernetesingress.ingressendpoint.ip=192.168.10.12
+        ports:
+          web:
+            nodePort: 30080
+            http:
+              redirections:
+                entryPoint:
+                  to: websecure
+                  scheme: https
+                  permanent: true
+          websecure:
+            nodePort: 30443
+        service:
+          type: NodePort
+          spec:
+            externalIPs:
+              - 192.168.10.10
+        tlsStore:
+          default:
+            defaultCertificate:
+              secretName: wildcard-example-com
+        ingressRoute:
+          dashboard:
+            enabled: true
+            matchRule: Host(`traefik.example.com`)
+            entryPoints:
+              - websecure
+            middlewares:
+              - name: oauth2-auth
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

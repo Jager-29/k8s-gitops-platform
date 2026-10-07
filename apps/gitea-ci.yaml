@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitea-ci
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://dl.gitea.com/charts/
+    chart: actions
+    targetRevision: 0.1.2
+    helm:
+      releaseName: gitea-runner
+      valuesObject:
+        enabled: true
+        giteaRootURL: http://gitea-http.gitea.svc.cluster.local:3000
+        existingSecret: gitea-runner
+        existingSecretKey: token
+        persistence:
+          size: 5Gi
+          storageClassName: local-path
+        statefulset:
+          replicas: 1
+          actRunner:
+            registry: docker.gitea.com
+            repository: runner
+            tag: 2.0.1
+          dind:
+            registry: docker.io
+            repository: docker
+            tag: 29.5.2-dind
+            extraArgs:
+              - --mtu=1450
+              - --default-network-opt=bridge=com.docker.network.driver.mtu=1450
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitea
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

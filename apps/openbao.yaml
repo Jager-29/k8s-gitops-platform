@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openbao
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://openbao.github.io/openbao-helm
+    chart: openbao
+    targetRevision: 0.30.0
+    helm:
+      releaseName: openbao
+      valuesObject:
+        injector:
+          enabled: false
+        server:
+          image:
+            registry: quay.io
+            repository: openbao/openbao
+            tag: 2.7.0
+          updateStrategyType: OnDelete
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            hosts:
+              - host: openbao.example.com
+                paths: []
+            tls:
+              - hosts:
+                  - openbao.example.com
+          dataStorage:
+            enabled: true
+            size: 10Gi
+            storageClass: local-path
+          auditStorage:
+            enabled: false
+          standalone:
+            enabled: false
+          ha:
+            enabled: true
+            replicas: 1
+            raft:
+              enabled: true
+              setNodeId: true
+              config: |
+                ui = true
+
+                listener "tcp" {
+                  tls_disable = 1
+                  address = "[::]:8200"
+                  cluster_address = "[::]:8201"
+                  telemetry {
+                    unauthenticated_metrics_access = true
+                  }
+                }
+
+                storage "raft" {
+                  path = "/openbao/data"
+                }
+
+                service_registration "kubernetes" {}
+
+                telemetry {
+                  prometheus_retention_time = "24h"
+                  disable_hostname = true
+                }
+        ui:
+          enabled: true
+        serverTelemetry:
+          serviceMonitor:
+            enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openbao
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

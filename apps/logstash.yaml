@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: logstash
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://helm.elastic.co
+    chart: logstash
+    targetRevision: 8.5.1
+    helm:
+      releaseName: logstash
+      valuesObject:
+        replicas: 1
+        imageTag: 8.5.1
+        logstashJavaOpts: -Xms512m -Xmx512m
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            memory: 1Gi
+        persistence:
+          enabled: false
+        logstashConfig:
+          logstash.yml: |
+            http.host: 0.0.0.0
+            xpack.monitoring.enabled: false
+        logstashPipeline:
+          logstash.conf: |
+            input {
+              tcp {
+                port => 8379
+                codec => json_lines
+              }
+            }
+            output {
+              elasticsearch {
+                hosts => ["http://graviteeio-apim-elasticsearch-ingest-hl.gravitee.svc.cluster.local:9200"]
+                index => "logstash-gravitee-%{+YYYY.MM.dd}"
+              }
+            }
+        service:
+          type: ClusterIP
+          ports:
+            - name: gravitee-tcp
+              port: 8379
+              protocol: TCP
+              targetPort: 8379
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gravitee
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true

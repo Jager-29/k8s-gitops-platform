@@ -1,0 +1,212 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 91.9.0
+    helm:
+      releaseName: kps
+      valuesObject:
+        fullnameOverride: kps
+        grafana:
+          enabled: false
+          forceDeployDatasources: true
+          forceDeployDashboards: false
+          sidecar:
+            datasources:
+              alertmanager:
+                enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        defaultRules:
+          rules:
+            etcd: false
+            kubeControllerManager: false
+            kubeSchedulerAlerting: false
+            kubeSchedulerRecording: false
+            kubeProxy: false
+        prometheusOperator:
+          admissionWebhooks:
+            enabled: false
+          tls:
+            enabled: false
+        prometheus:
+          prometheusSpec:
+            retention: 15d
+            retentionSize: 10GB
+            nodeSelector:
+              kubernetes.io/hostname: k8s-master-01
+            tolerations:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+                effect: NoSchedule
+            resources:
+              requests:
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 2Gi
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 15Gi
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            probeSelectorNilUsesHelmValues: false
+            scrapeConfigSelectorNilUsesHelmValues: false
+        alertmanager:
+          enabled: true
+          alertmanagerSpec:
+            nodeSelector:
+              kubernetes.io/hostname: k8s-master-01
+            tolerations:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+                effect: NoSchedule
+            retention: 120h
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 1Gi
+            secrets:
+              - alertmanager-teams
+          config:
+            global:
+              resolve_timeout: 5m
+            templates:
+              - /etc/alertmanager/config/*.tmpl
+            route:
+              receiver: "null"
+              group_by:
+                - alertname
+                - namespace
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 4h
+              routes:
+                - receiver: "null"
+                  matchers:
+                    - alertname=~"Watchdog|InfoInhibitor"
+                - receiver: "null"
+                  matchers:
+                    - alertname=~"CNPGClusterHACritical|CNPGClusterHAWarning"
+                - receiver: teams
+                  matchers:
+                    - alertname="CertificateExpiresVerySoon"
+                  repeat_interval: 24h
+                - receiver: teams
+                  matchers:
+                    - alertname="CertificateExpiresSoon"
+                  repeat_interval: 168h
+                - receiver: teams
+                  matchers:
+                    - team="infra"
+                - receiver: teams
+                  matchers:
+                    - severity="critical"
+            receivers:
+              - name: "null"
+              - name: teams
+                msteamsv2_configs:
+                  - webhook_url_file: /etc/alertmanager/secrets/alertmanager-teams/webhook_url
+                    send_resolved: true
+                    title: '{{ template "platform.title" . }}'
+                    text: '{{ template "platform.text" . }}'
+            inhibit_rules:
+              - source_matchers:
+                  - severity="critical"
+                target_matchers:
+                  - severity=~"warning|info"
+                equal:
+                  - namespace
+                  - alertname
+              - source_matchers:
+                  - severity="warning"
+                target_matchers:
+                  - severity="info"
+                equal:
+                  - namespace
+                  - alertname
+              - source_matchers:
+                  - alertname="InfoInhibitor"
+                target_matchers:
+                  - severity="info"
+                equal:
+                  - namespace
+              - target_matchers:
+                  - alertname="InfoInhibitor"
+              - source_matchers:
+                  - alertname="OpenBaoSealed"
+                target_matchers:
+                  - alertname="TargetUnreachable"
+                equal:
+                  - namespace
+              - source_matchers:
+                  - alertname="CertificateExpiresVerySoon"
+                target_matchers:
+                  - alertname="CertificateExpiresSoon"
+                equal:
+                  - cn
+          templateFiles:
+            platform.tmpl: |-
+              {{ define "platform.severity" }}{{ if eq . "critical" }}critical{{ else if eq . "warning" }}warning{{ else if eq . "info" }}info{{ else }}unknown{{ end }}{{ end }}
+
+              {{ define "platform.title" }}{{ if eq .Status "resolved" }}✅{{ else if eq .CommonLabels.severity "critical" }}🔴{{ else }}🟠{{ end }} {{ with .CommonAnnotations.summary }}{{ . }}{{ else }}{{ .GroupLabels.alertname }}{{ end }}{{ if gt (len .Alerts) 1 }} ({{ len .Alerts }}){{ end }}{{ end }}
+
+              {{ define "platform.text" }}{{ range .Alerts }}**{{ .Annotations.summary }}**
+
+              {{ .Annotations.description }}
+
+              - Severity: {{ template "platform.severity" .Labels.severity }}
+              {{ with .Labels.namespace }}- Namespace: {{ . }}
+              {{ end }}{{ with .Labels.name }}- ArgoCD application: {{ . }}
+              {{ end }}{{ if and .Labels.pod (not (match "kube-state-metrics" .Labels.pod)) }}- Pod: {{ .Labels.pod }}
+              {{ end }}{{ if eq .Labels.alertname "TargetUnreachable" }}{{ with .Labels.instance }}- Target: {{ . }}
+              {{ end }}{{ end }}- Since: {{ (tz "Europe/Paris" .StartsAt).Format "2006-01-02 15:04" }} (Europe/Paris)
+              {{ with .Annotations.runbook_url }}- [Runbook]({{ . }})
+              {{ end }}
+              {{ end }}{{ end }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
