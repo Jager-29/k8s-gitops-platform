@@ -1,0 +1,34 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: block-metrics
+  namespace: openbao
+spec:
+  ipAllowList:
+    sourceRange:
+      - 127.0.0.1/32
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openbao-metrics-blocked
+  namespace: openbao
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: openbao-block-metrics@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: openbao.example.com
+      http:
+        paths:
+          - path: /v1/sys/metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: openbao-active
+                port:
+                  number: 8200
+  tls:
+    - hosts:
+        - openbao.example.com
