@@ -1,0 +1,52 @@
+{
+    "receiver": "teams",
+    "status": "firing",
+    "alerts": [
+        {
+            "status": "firing",
+            "labels": {
+                "alertname": "TargetUnreachable",
+                "severity": "warning",
+                "namespace": "openbao",
+                "pod": "openbao-0",
+                "instance": "10.244.1.5:8200",
+                "team": "infra"
+            },
+            "annotations": {
+                "summary": "Target unreachable",
+                "description": "Prometheus cannot scrape the target."
+            },
+            "startsAt": "2026-10-07T08:00:00Z",
+            "endsAt": "0001-01-01T00:00:00Z",
+            "generatorURL": "",
+            "fingerprint": "a"
+        },
+        {
+            "status": "firing",
+            "labels": {
+                "alertname": "KubeJobFailed",
+                "severity": "warning",
+                "namespace": "cert-manager",
+                "pod": "kps-kube-state-metrics-abc",
+                "name": "cert-manager"
+            },
+            "annotations": {
+                "summary": "Job failed",
+                "description": "Job x failed.",
+                "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubejobfailed"
+            },
+            "startsAt": "2026-10-07T08:00:00Z",
+            "endsAt": "0001-01-01T00:00:00Z",
+            "generatorURL": "",
+            "fingerprint": "b"
+        }
+    ],
+    "groupLabels": {
+        "alertname": "TargetUnreachable"
+    },
+    "commonLabels": {
+        "severity": "warning"
+    },
+    "commonAnnotations": {},
+    "externalURL": "http://am"
+}
