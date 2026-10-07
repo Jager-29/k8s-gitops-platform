@@ -1,0 +1,15 @@
+extends: default
+
+ignore: |
+  schemas/
+  .venv/
+
+rules:
+  line-length: disable
+  document-start: disable
+  new-line-at-end-of-file: disable
+  truthy:
+    check-keys: false
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
