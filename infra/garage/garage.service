@@ -1,0 +1,24 @@
+[Unit]
+Description=Garage S3 object storage
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/var/lib/garage
+
+[Service]
+Type=simple
+User=garage
+Group=garage
+Environment=GARAGE_CONFIG_FILE=/etc/garage.toml
+Environment=RUST_LOG=garage=info
+ExecStart=/usr/local/bin/garage server
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/garage
+
+[Install]
+WantedBy=multi-user.targe
