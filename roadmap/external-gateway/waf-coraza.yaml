@@ -1,0 +1,13 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: waf-coraza
+  namespace: gravitee
+spec:
+  plugin:
+    coraza:
+      directives:
+        - Include @coraza.conf-recommended
+        - Include @crs-setup.conf.example
+        - Include @owasp_crs/*.conf
+        - SecRuleEngine DetectionOnly
