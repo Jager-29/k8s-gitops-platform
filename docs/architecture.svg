@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="880" viewBox="0 0 1300 880" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif">
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7d8aa3"/></marker>
+<marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d9480f"/></marker>
+<style>
+.t{font-size:13px;font-weight:600;fill:#1d2939}
+.s{font-size:10px;fill:#667085}
+.ft{font-size:13px;font-weight:600;font-style:italic}
+.bd{font-size:11px;font-weight:700;fill:#ffffff}
+.pl{font-size:10px;font-weight:600;fill:#ffffff}
+.lb{font-size:10.5px;fill:#344054}
+</style>
+</defs>
+<rect width="1300" height="880" fill="#ffffff"/>
+<line x1="30" y1="22" x2="60" y2="22" stroke="#7d8aa3" stroke-width="1.5"/><text x="66" y="26" class="s">In place</text>
+<rect x="130" y="14" width="26" height="16" rx="3" fill="#fff4e6" stroke="#d9480f" stroke-dasharray="4 3"/><text x="162" y="26" class="s">Planned</text>
+<rect x="60" y="55" width="180" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="69" y="68.0" width="32" height="32" rx="7" fill="#868e96"/>
+<text x="85" y="88.5" class="bd" text-anchor="middle">US</text>
+<text x="110" y="80.0" class="t">Users</text>
+<text x="110" y="95.0" class="s">LAN / VPN</text>
+<rect x="280" y="55" width="180" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="289" y="68.0" width="32" height="32" rx="7" fill="#e8590c"/>
+<text x="305" y="88.5" class="bd" text-anchor="middle">FW</text>
+<text x="330" y="80.0" class="t">Firewall</text>
+<text x="330" y="95.0" class="s">Perimeter filtering</text>
+<rect x="500" y="55" width="190" height="58" rx="8" fill="#fff4e6" stroke="#d9480f" stroke-width="1.4" stroke-dasharray="6 4"/>
+<rect x="509" y="68.0" width="32" height="32" rx="7" fill="#f08c00"/>
+<text x="525" y="88.5" class="bd" text-anchor="middle">WF</text>
+<text x="550" y="80.0" class="t">WAF</text>
+<text x="550" y="95.0" class="s">External gateway</text>
+<rect x="632" y="46" width="50" height="17" rx="8" fill="#e8590c"/><text x="657" y="58" class="pl" text-anchor="middle">planned</text>
+<rect x="730" y="55" width="210" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="739" y="70.0" width="32" height="32" rx="7" fill="#e8590c"/>
+<text x="755" y="90.5" class="bd" text-anchor="middle">HA</text>
+<text x="780" y="82.0" class="t">HAProxy</text>
+<text x="780" y="97.0" class="s">lb-01 · 192.168.10.12</text>
+<text x="780" y="109.0" class="s">TCP 80/443, no TLS offload</text>
+<path d="M240,84 L278,84" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M460,84 L498,84" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M690,84 L728,84" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="30" y="150" width="990" height="710" rx="14" fill="#f8fbff" stroke="#1c7ed6" stroke-width="2"/>
+<text x="46" y="174" class="ft" fill="#1c4f9c">Kubernetes cluster · k8s-master-01 192.168.10.10 · k8s-worker-01 192.168.10.11</text>
+<rect x="1040" y="150" width="240" height="710" rx="14" fill="#f4f7f1" stroke="#c9d3c0" stroke-width="2"/>
+<text x="1056" y="174" class="ft" fill="#4b5a45">Outside the cluster</text>
+<rect x="240" y="300" width="765" height="330" rx="14" fill="#f1f4f9" stroke="#d0d7e2" stroke-width="2"/>
+<text x="256" y="324" class="ft" fill="#344054">API Management · Gravitee 4.12.3</text>
+<rect x="45" y="650" width="460" height="190" rx="14" fill="#f1f4f9" stroke="#d0d7e2" stroke-width="2"/>
+<text x="61" y="674" class="ft" fill="#344054">CI/CD chain</text>
+<rect x="515" y="650" width="490" height="190" rx="14" fill="#f1f4f9" stroke="#d0d7e2" stroke-width="2"/>
+<text x="531" y="674" class="ft" fill="#344054">Backups · daily, 7 days retention</text>
+<rect x="50" y="185" width="175" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="59" y="198.0" width="32" height="32" rx="7" fill="#7048e8"/>
+<text x="75" y="218.5" class="bd" text-anchor="middle">OB</text>
+<text x="100" y="210.0" class="t">OpenBao 2.7</text>
+<text x="100" y="225.0" class="s">Raft · KV v2 vault</text>
+<rect x="50" y="270" width="175" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="59" y="283.0" width="32" height="32" rx="7" fill="#7048e8"/>
+<text x="75" y="303.5" class="bd" text-anchor="middle">ES</text>
+<text x="100" y="295.0" class="t">External Secrets</text>
+<text x="100" y="310.0" class="s">2.11 · store openbao</text>
+<rect x="50" y="355" width="175" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="59" y="368.0" width="32" height="32" rx="7" fill="#7048e8"/>
+<text x="75" y="388.5" class="bd" text-anchor="middle">CM</text>
+<text x="100" y="380.0" class="t">cert-manager</text>
+<text x="100" y="395.0" class="s">Internal certificates</text>
+<rect x="50" y="440" width="175" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="59" y="455.0" width="32" height="32" rx="7" fill="#7048e8"/>
+<text x="75" y="475.5" class="bd" text-anchor="middle">OP</text>
+<text x="100" y="467.0" class="t">oauth2-proxy</text>
+<text x="100" y="482.0" class="s">7.15 · forwardAuth</text>
+<text x="100" y="494.0" class="s">Traefik dashboard</text>
+<path d="M137,243 L137,268" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="600" y="180" width="250" height="64" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="609" y="196.0" width="32" height="32" rx="7" fill="#e8590c"/>
+<text x="625" y="216.5" class="bd" text-anchor="middle">TR</text>
+<text x="650" y="208.0" class="t">Traefik 3.7</text>
+<text x="650" y="223.0" class="s">Ingress · TLS *.example.com</text>
+<text x="650" y="235.0" class="s">NodePort 30080 / 30443</text>
+<path d="M835,117 L835,140 L725,140 L725,178" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M225,299 L260,299 L260,212 L598,212" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="342.7" y="202" width="154.6" height="18" rx="4" fill="#ffffff" stroke="#c5ccd8"/><text x="420" y="215" class="lb" text-anchor="middle">wildcard *.example.com</text>
+<rect x="255" y="340" width="180" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="264" y="355.0" width="32" height="32" rx="7" fill="#7048e8"/>
+<text x="280" y="375.5" class="bd" text-anchor="middle">KC</text>
+<text x="305" y="367.0" class="t">Keycloak</text>
+<text x="305" y="382.0" class="s">keycloak.example.com</text>
+<text x="305" y="394.0" class="s">SSO · 26.7</text>
+<rect x="455" y="340" width="185" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="464" y="355.0" width="32" height="32" rx="7" fill="#1c7ed6"/>
+<text x="480" y="375.5" class="bd" text-anchor="middle">GV</text>
+<text x="505" y="367.0" class="t">Gravitee APIM</text>
+<text x="505" y="382.0" class="s">apim.example.com</text>
+<text x="505" y="394.0" class="s">Console · Portal · API</text>
+<rect x="660" y="340" width="185" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="669" y="355.0" width="32" height="32" rx="7" fill="#1c7ed6"/>
+<text x="685" y="375.5" class="bd" text-anchor="middle">GW</text>
+<text x="710" y="367.0" class="t">Internal gateway</text>
+<text x="710" y="382.0" class="s">apim-gw.example.com</text>
+<text x="710" y="394.0" class="s">sharding tag internal</text>
+<rect x="860" y="400" width="135" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="869" y="413.0" width="32" height="32" rx="7" fill="#0ca678"/>
+<text x="885" y="433.5" class="bd" text-anchor="middle">RD</text>
+<text x="910" y="425.0" class="t">Redis</text>
+<text x="910" y="440.0" class="s">Rate limit</text>
+<rect x="255" y="445" width="180" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="264" y="460.0" width="32" height="32" rx="7" fill="#0ca678"/>
+<text x="280" y="480.5" class="bd" text-anchor="middle">PG</text>
+<text x="305" y="472.0" class="t">PostgreSQL</text>
+<text x="305" y="487.0" class="s">CNPG · gravitee-pg</text>
+<text x="305" y="499.0" class="s">+ keycloak database</text>
+<rect x="455" y="445" width="185" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="464" y="458.0" width="32" height="32" rx="7" fill="#0ca678"/>
+<text x="480" y="478.5" class="bd" text-anchor="middle">EL</text>
+<text x="505" y="470.0" class="t">Elasticsearch</text>
+<text x="505" y="485.0" class="s">Gateway analytics</text>
+<rect x="660" y="445" width="185" height="62" rx="8" fill="#fff4e6" stroke="#d9480f" stroke-width="1.4" stroke-dasharray="6 4"/>
+<rect x="669" y="460.0" width="32" height="32" rx="7" fill="#f08c00"/>
+<text x="685" y="480.5" class="bd" text-anchor="middle">GW</text>
+<text x="710" y="472.0" class="t">External gateway</text>
+<text x="710" y="487.0" class="s">apim-gw-ext.example.com</text>
+<text x="710" y="499.0" class="s">sharding tag external</text>
+<rect x="787" y="436" width="50" height="17" rx="8" fill="#e8590c"/><text x="812" y="448" class="pl" text-anchor="middle">planned</text>
+<rect x="660" y="545" width="185" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="669" y="558.0" width="32" height="32" rx="7" fill="#f08c00"/>
+<text x="685" y="578.5" class="bd" text-anchor="middle">LS</text>
+<text x="710" y="570.0" class="t">Logstash</text>
+<text x="710" y="585.0" class="s">8.5.1 · TCP input</text>
+<rect x="860" y="545" width="135" height="58" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="869" y="558.0" width="32" height="32" rx="7" fill="#f08c00"/>
+<text x="885" y="578.5" class="bd" text-anchor="middle">GF</text>
+<text x="910" y="570.0" class="t">Grafana</text>
+<text x="910" y="585.0" class="s">Dashboards in Git</text>
+<path d="M700,244 L700,300 L547,300 L547,338" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M760,244 L760,338" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M640,244 L640,270 L345,270 L345,338" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M137,502 L137,520 L240,520 L240,380 L253,380" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M345,402 L345,443" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M435,371 L453,371" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M547,402 L547,443" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M845,371 L927,371 L927,398" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M675,402 L675,425 L645,425 L645,575 L658,575" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M845,476 L927,476 L927,460" fill="none" stroke="#d9480f" stroke-dasharray="6 4" stroke-width="1.5" marker-end="url(#ao)"/>
+<path d="M752,507 L752,543" fill="none" stroke="#d9480f" stroke-dasharray="6 4" stroke-width="1.5" marker-end="url(#ao)"/>
+<path d="M660,590 L547,590 L547,505" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M845,574 L858,574" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M850,212 L1020,212 L1020,281 L1048,281" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="913.65" y="202" width="72.69999999999999" height="18" rx="4" fill="#ffffff" stroke="#c5ccd8"/><text x="950" y="215" class="lb" text-anchor="middle">LDAPS 636</text>
+<rect x="1050" y="250" width="220" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="1059" y="265.0" width="32" height="32" rx="7" fill="#868e96"/>
+<text x="1075" y="285.5" class="bd" text-anchor="middle">AD</text>
+<text x="1100" y="277.0" class="t">Active Directory</text>
+<text x="1100" y="292.0" class="s">example.local · dc01 / dc02</text>
+<text x="1100" y="304.0" class="s">192.168.10.6 · 192.168.10.7</text>
+<rect x="1050" y="690" width="220" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="1059" y="705.0" width="32" height="32" rx="7" fill="#495057"/>
+<text x="1075" y="725.5" class="bd" text-anchor="middle">S3</text>
+<text x="1100" y="717.0" class="t">Garage S3</text>
+<text x="1100" y="732.0" class="s">s3-01 · 192.168.10.13</text>
+<text x="1100" y="744.0" class="s">Garage 2.4 · 4 buckets</text>
+<rect x="1050" y="785" width="220" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="1059" y="800.0" width="32" height="32" rx="7" fill="#495057"/>
+<text x="1075" y="820.5" class="bd" text-anchor="middle">VM</text>
+<text x="1100" y="812.0" class="t">Veeam</text>
+<text x="1100" y="827.0" class="s">VM backups of cluster</text>
+<text x="1100" y="839.0" class="s">nodes and s3-01</text>
+<path d="M1160,752 L1160,783" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="60" y="700" width="145" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="69" y="715.0" width="32" height="32" rx="7" fill="#2f9e44"/>
+<text x="85" y="735.5" class="bd" text-anchor="middle">GT</text>
+<text x="110" y="727.0" class="t">Gitea</text>
+<text x="110" y="742.0" class="s">git.example.com</text>
+<text x="110" y="754.0" class="s">1.27</text>
+<rect x="213" y="700" width="130" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="222" y="715.0" width="32" height="32" rx="7" fill="#2f9e44"/>
+<text x="238" y="735.5" class="bd" text-anchor="middle">GA</text>
+<text x="263" y="727.0" class="t">Actions</text>
+<text x="263" y="742.0" class="s">Gitea runner</text>
+<text x="263" y="754.0" class="s">validation CI</text>
+<rect x="351" y="700" width="144" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="360" y="715.0" width="32" height="32" rx="7" fill="#2f9e44"/>
+<text x="376" y="735.5" class="bd" text-anchor="middle">AC</text>
+<text x="401" y="727.0" class="t">ArgoCD</text>
+<text x="401" y="742.0" class="s">app of apps</text>
+<text x="401" y="754.0" class="s">root reads apps/</text>
+<path d="M205,731 L211,731" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M343,731 L349,731" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="525" y="700" width="145" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="534" y="715.0" width="32" height="32" rx="7" fill="#0ca678"/>
+<text x="550" y="735.5" class="bd" text-anchor="middle">BM</text>
+<text x="575" y="727.0" class="t">Barman</text>
+<text x="575" y="742.0" class="s">Continuous WAL</text>
+<text x="575" y="754.0" class="s">02:00 UTC</text>
+<rect x="680" y="700" width="155" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="689" y="715.0" width="32" height="32" rx="7" fill="#495057"/>
+<text x="705" y="735.5" class="bd" text-anchor="middle">DP</text>
+<text x="730" y="727.0" class="t">Dumps</text>
+<text x="730" y="742.0" class="s">OpenBao 03:30</text>
+<text x="730" y="754.0" class="s">Gitea, Grafana 02:30</text>
+<rect x="845" y="700" width="150" height="62" rx="8" fill="#ffffff" stroke="#98a2b3" stroke-width="1.4"/>
+<rect x="854" y="715.0" width="32" height="32" rx="7" fill="#495057"/>
+<text x="870" y="735.5" class="bd" text-anchor="middle">VL</text>
+<text x="895" y="727.0" class="t">Velero</text>
+<text x="895" y="742.0" class="s">K8s objects</text>
+<text x="895" y="754.0" class="s">03:00 UTC</text>
+<path d="M597,762 L595,845 L1030,845 L1030,735 L1048,735" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M757,762 L755,830 L1022,830 L1022,725 L1048,725" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M995,731 L1014,731 L1014,715 L1048,715" fill="none" stroke="#7d8aa3" stroke-width="1.5" marker-end="url(#a)"/>
+</svg>
