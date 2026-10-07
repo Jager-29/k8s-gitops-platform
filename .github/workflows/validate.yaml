@@ -1,0 +1,60 @@
+name: validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          bash ci/install-tools.sh "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: gitleaks
+        run: gitleaks git --redact --no-banner --verbose .
+
+      - name: yamllint, kubeconform, promtool, amtool
+        run: bash ci/validate.sh
+
+  helm-render:
+    runs-on: ubuntu-24.04
+    needs: manifests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          bash ci/install-tools.sh "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+
+      - name: Render every chart declared in apps/
+        run: ~/.venv-ci/bin/python3 tools/helm-render.py render
+
+      - name: Validate rendered manifests
+        run: |
+          kubeconform -summary -ignore-missing-schemas -kubernetes-version 1.30.14 \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            render/
